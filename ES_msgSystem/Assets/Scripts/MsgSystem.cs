@@ -1,0 +1,130 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+
+namespace ES_MsgSystem
+{
+    public class MsgSystem : MonoBehaviour
+    {
+        public bool IsCompleted { get { return IsMsgCompleted; } }
+        public string text { get { return msgText; } }
+        public bool IsWaitingForNext { get { return IsWaitingForNextToGo; } }
+        public float textSpeed = 0.01f; //Updating period of text. The actual period may not less than deltaTime.
+
+        private const char SPECIAL_CHAR_STAR = '[';
+        private const char SPECIAL_CHAR_END = ']';
+        private enum SpecialCharType { StartChar, CmdChar, EndChar, NormalChar }
+        private bool IsMsgCompleted = true;
+        private bool IsOnSpecialChar = false;
+        private bool IsWaitingForNextToGo = false;
+        private bool IsOnCmdEvent = false;
+        private string specialCmd = "";
+        private string msgText;
+        private char lastChar = ' ';
+        private Dictionary<string, Action> specialCharFuncMap = new Dictionary<string, Action>();
+
+        void Start()
+        {
+            //Init the Keywords Function.
+            specialCharFuncMap.Add("w", () => StartCoroutine(CmdFun_w_Task()));
+            specialCharFuncMap.Add("lr", () => StartCoroutine(CmdFun_lr_Task()));
+        }
+
+        #region User Function
+        public void Next()
+        {
+            IsWaitingForNextToGo = false;
+        }
+        public void SetText(string _text)
+        {
+            StartCoroutine(SetTextTask(_text));
+        }
+        #endregion
+
+        #region Keywords Function
+        private IEnumerator CmdFun_w_Task()
+        {
+            IsOnCmdEvent = true;
+            IsWaitingForNextToGo = true;
+            yield return new WaitUntil(() => IsWaitingForNextToGo == false);
+            msgText = "";   //Erase the messages.
+            IsOnCmdEvent = false;
+            yield return null;
+        }
+        private IEnumerator CmdFun_lr_Task()
+        {
+            IsOnCmdEvent = true;
+            IsWaitingForNextToGo = true;
+            yield return new WaitUntil(() => IsWaitingForNextToGo == false);
+            IsOnCmdEvent = false;
+            yield return null;
+        }
+        #endregion
+
+        #region Messages Core
+        private void AddChar(char _char)
+        {
+            msgText += _char;
+            lastChar = _char;
+        }
+        private SpecialCharType CheckSpecialChar(char _char)
+        {
+            if (_char == SPECIAL_CHAR_STAR)
+            {
+                if (lastChar == SPECIAL_CHAR_STAR)
+                {
+                    specialCmd = "";
+                    IsOnSpecialChar = false;
+                    return SpecialCharType.NormalChar;
+                }
+                IsOnSpecialChar = true;
+                return SpecialCharType.CmdChar;
+            }
+            else if (_char == SPECIAL_CHAR_END && IsOnSpecialChar)
+            {
+                //execmd!!
+                if (specialCharFuncMap.ContainsKey(specialCmd))
+                {
+                    specialCharFuncMap[specialCmd]();
+                    //Debug.Log("The keyword : [" + specialCmd + "] execute!");
+                }
+                else
+                    Debug.LogError("The keyword : [" + specialCmd + "] is not exist!");
+                specialCmd = "";
+                IsOnSpecialChar = false;
+                return SpecialCharType.EndChar;
+            }
+            else if (IsOnSpecialChar)
+            {
+                specialCmd += _char;
+                return SpecialCharType.CmdChar;
+            }
+            return SpecialCharType.NormalChar;
+        }
+        private IEnumerator SetTextTask(string _text)
+        {
+            IsOnSpecialChar = false;
+            IsMsgCompleted = false;
+            specialCmd = "";
+            for (int i = 0; i < _text.Length; i++)
+            {
+                switch (CheckSpecialChar(_text[i]))
+                {
+                    case SpecialCharType.NormalChar:
+                        AddChar(_text[i]);
+                        lastChar = _text[i];
+                        yield return new WaitForSeconds(textSpeed);
+                        break;
+                }
+                lastChar = _text[i];
+                yield return new WaitUntil(() => IsOnCmdEvent == false);
+            }
+
+            IsMsgCompleted = true;
+            yield return null;
+        }
+        #endregion
+    }
+}
+
