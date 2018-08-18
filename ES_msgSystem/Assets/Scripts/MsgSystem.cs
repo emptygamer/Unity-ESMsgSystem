@@ -3,8 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
 namespace ES_MsgSystem
 {
+    /// <summary>The messageSystem is made by Rempty-EmptyStudio. 
+    /// UserFunction
+    ///     SetText(string) -> Make the system to print or execute the commands.
+    ///     Next()          -> If the system is WaitingForNext, then it will continue the remaining contents.
+    /// Parameters
+    ///     IsCompleted     -> Is the input text parsing completely by the system.
+    ///     text            -> The result, witch you can show on your interface as a dialog.
+    ///     IsWaitingForNext-> Waiting for user input -> The Next() function.
+    ///     textSpeed       -> Setting the updating period of text.
+    /// </summary> 
     public class MsgSystem : MonoBehaviour
     {
         public bool IsCompleted { get { return IsMsgCompleted; } }
