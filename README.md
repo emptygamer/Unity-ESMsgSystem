@@ -8,7 +8,7 @@
     |w|wait for press, and erase the text.|
 - ## **Call keywords commands**
     ### **Use brackets (by defult) to set the keywords commands.**
-    - The brackets can be change to another characters.
+    - The brackets can be changed to another characters.
     - If you want to print the brackets (or the special start command character), just repeat it to make the words not a command. 
         - ex : ( [[w] -> print "[w]" )
 - ## **Use cases**
