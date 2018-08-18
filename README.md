@@ -4,8 +4,10 @@
 - ## **Supported keywords in texts**
     |Keywords|Commands|
     |-----------|--------|
-    |lr|wait for press.|
-    |w|wait for press, and erase the text.|
+    |l|Wait for press.|
+    |r|Change the line.|
+    |lr|Wait for press, and change the line.|
+    |w|Wait for press, and erase the text.|
 - ## **Call keywords commands**
     ### **Use brackets (by defult) to set the keywords commands.**
     - The brackets can be changed to another characters.
@@ -13,14 +15,20 @@
         - ex : ( [[w] -> print "[w]" )
 - ## **Use cases**
 ```
-    1.  text:   Hello![lr]World![w]
+    1.  text:   Hello![l]World![w]
         result: Hello!(wait for press)
-        result: Hello!World!(wait for apress and erase.)
+        result: Hello!World!(wait for press)
 
-    2.  text:   Hello![w]World![w]
-        result: Hello!(wait for press and erase.)
-        result: World!(wait for press and erase.)
+    2.  text:   Hello![r]World![w]
+        result: Hello!
+                World!(wait for press)
+
+    3.  text:   Hello![lr]World![w]
+        result: Hello!(wait for press)
+        result: Hello!
+                World!(wait for press)
     
-    3.  text:   This is [[w] and this is [[lr].[w]
-        result: This is [w] and this is [lr].(wait for press and erase.)
+    4.  text:   Hello![w]World![w]
+        result: Hello!(wait for press)
+        result: World!(wait for press)
 ```

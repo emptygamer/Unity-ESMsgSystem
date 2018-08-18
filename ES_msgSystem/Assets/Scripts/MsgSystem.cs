@@ -37,8 +37,10 @@ namespace ES_MsgSystem
 
         void Start()
         {
-            //Init the Keywords Function.
+            //Register the Keywords Function.
             specialCharFuncMap.Add("w", () => StartCoroutine(CmdFun_w_Task()));
+            specialCharFuncMap.Add("r", () => StartCoroutine(CmdFun_r_Task()));
+            specialCharFuncMap.Add("l", () => StartCoroutine(CmdFun_l_Task()));
             specialCharFuncMap.Add("lr", () => StartCoroutine(CmdFun_lr_Task()));
         }
 
@@ -54,6 +56,21 @@ namespace ES_MsgSystem
         #endregion
 
         #region Keywords Function
+        private IEnumerator CmdFun_l_Task()
+        {
+            IsOnCmdEvent = true;
+            IsWaitingForNextToGo = true;
+            yield return new WaitUntil(() => IsWaitingForNextToGo == false);
+            IsOnCmdEvent = false;
+            yield return null;
+        }
+        private IEnumerator CmdFun_r_Task()
+        {
+            IsOnCmdEvent = true;
+            msgText += '\n';
+            IsOnCmdEvent = false;
+            yield return null;
+        }
         private IEnumerator CmdFun_w_Task()
         {
             IsOnCmdEvent = true;
@@ -68,6 +85,7 @@ namespace ES_MsgSystem
             IsOnCmdEvent = true;
             IsWaitingForNextToGo = true;
             yield return new WaitUntil(() => IsWaitingForNextToGo == false);
+            msgText += '\n';
             IsOnCmdEvent = false;
             yield return null;
         }
@@ -94,7 +112,7 @@ namespace ES_MsgSystem
             }
             else if (_char == SPECIAL_CHAR_END && IsOnSpecialChar)
             {
-                //execmd!!
+                //exe cmd!
                 if (specialCharFuncMap.ContainsKey(specialCmd))
                 {
                     specialCharFuncMap[specialCmd]();
@@ -131,7 +149,6 @@ namespace ES_MsgSystem
                 lastChar = _text[i];
                 yield return new WaitUntil(() => IsOnCmdEvent == false);
             }
-
             IsMsgCompleted = true;
             yield return null;
         }
