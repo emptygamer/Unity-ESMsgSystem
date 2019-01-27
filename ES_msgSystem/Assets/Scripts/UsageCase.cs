@@ -1,26 +1,36 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ES_MsgSystem;
+using RemptyTool.ES_MessageSystem;
 
-[RequireComponent(typeof(MsgSystem))]
+[RequireComponent(typeof(ES_MessageSystem))]
 public class UsageCase : MonoBehaviour
 {
-    private MsgSystem msgSys;
+    private ES_MessageSystem msgSys;
     public UnityEngine.UI.Text uiText;
     public TextAsset textAsset;
     private List<string> textList = new List<string>();
     private int textIndex = 0;
+
     void Start()
     {
-        msgSys = this.GetComponent<MsgSystem>();
+        msgSys = this.GetComponent<ES_MessageSystem>();
         if (uiText == null)
         {
             Debug.LogError("UIText Component not assign.");
         }
         else
             ReadTextDataFromAsset(textAsset);
+
+        //add special chars and functions in other component.
+        msgSys.AddSpecialCharToFuncMap("UsageCase", CustomizedFunction);
     }
+
+    private void CustomizedFunction()
+    {
+        Debug.Log("Hi! This is called by CustomizedFunction!");
+    }
+
     private void ReadTextDataFromAsset(TextAsset _textAsset)
     {
         textList.Clear();
@@ -32,6 +42,7 @@ public class UsageCase : MonoBehaviour
             textList.Add(line);
         }
     }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.S))
@@ -42,16 +53,19 @@ public class UsageCase : MonoBehaviour
                 msgSys.SetText("Send the messages![lr] HelloWorld![w]");
             }
         }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             //Continue the messages, stoping by [w] or [lr] keywords.
             msgSys.Next();
         }
+
         //If the message is complete, stop updating text.
         if (msgSys.IsCompleted == false)
         {
             uiText.text = msgSys.text;
         }
+
         //Auto update from textList.
         if (msgSys.IsCompleted == true && textIndex < textList.Count)
         {
